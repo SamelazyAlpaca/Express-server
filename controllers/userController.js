@@ -1,28 +1,28 @@
-import data from '../data/data.json'
+// import data from '../data/data.json' assert {type: 'json'};
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 const __dirname = path.resolve()
 
-const content = 'Some content'
-
-const read = () => {
-	return JSON.parse(
-		fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
-	)
-}
-const write = (task) => {
-	fs.writeFileSync(`${__dirname}/data/data.json`,
-		JSON.stringify(task, 1, 2))
-}
+// const read = () => {
+// 	return JSON.parse(
+// 		fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
+// 	)
+// }
+// const write = (task) => {
+// 	fs.writeFileSync(`${__dirname}/data/data.json`,
+// 		JSON.stringify(task))
+// }
+const rawData = fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
+const parsedData = JSON.parse(rawData)
 
 const getAllTasks = (req, res, next) => {
-	res.json(read().tasks)
+	res.json(parsedData.tasks)
 	next()
 }
 const getOneTask = (req, res, next) => {
 	const id = req.params.id
-	res.json(data.tasks[id])
+	res.json(parsedData.tasks[id])
 	next()
 }
 const postOneTask = (req, res, next) => {
@@ -34,23 +34,36 @@ const postOneTask = (req, res, next) => {
 		createdAt: new Date(),
 		updatedAt: new Date(),
 	}
-	data.tasks.push(task)
-	res.json(data.tasks)
+	console.log(req.body);
+	parsedData.tasks.push(task)
+
+	const stringData = JSON.stringify(parsedData)
+	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+
+	res.json(parsedData)
 	next()
 }
 const patchOneTask = (req, res, next) => {
 	const id = req.params.id
 	const body = req.body
-	const task = data.tasks[id]
+	const task = parsedData.tasks[id]
 	task.name = body.name
 	task.done = body.done
 	task.updatedAt = new Date()
-	res.json(task)
+
+	const stringData = JSON.stringify(parsedData)
+	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+
+	res.json(parsedData)
 	next()
 }
 const deleteOneTaks = (req, res, next) => {
 	const id = req.params.id
-	const task = data.tasks.splice(id, 1)
+	const task = parsedData.tasks.splice(id, 1)
+
+	const stringData = JSON.stringify(parsedData)
+	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+
 	res.json(task)
 	next()
 }
