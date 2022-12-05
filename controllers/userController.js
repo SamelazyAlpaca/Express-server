@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 const __dirname = path.resolve()
+import { body, validationResult } from 'express-validator'
 
 // const read = () => {
 // 	return JSON.parse(
@@ -67,35 +68,49 @@ const getOneTask = (req, res, next) => {
 	next()
 }
 const postOneTask = (req, res, next) => {
-	const task = {
-		uuid: uuidv4(),
-		name: req.body.name,
-		done: req.body.done,
-		userId: `${process.env.BASE_userId}`,
-		createdAt: new Date(),
-		updatedAt: new Date(),
+
+	try {
+		validationResult(req).throw()
+		const task = {
+			uuid: uuidv4(),
+			name: req.body.name.trim(),
+			done: req.body.done,
+			userId: `${process.env.BASE_userId}`,
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		}
+		console.log(req.body);
+		parsedData.push(task)
+
+		const stringData = JSON.stringify(parsedData)
+		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+
+		res.json(parsedData)
+	} catch (error) {
+		console.log('POST ERROR', error);
+		res.json(error)
 	}
-	console.log(req.body);
-	parsedData.push(task)
 
-	const stringData = JSON.stringify(parsedData)
-	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
-
-	res.json(parsedData)
 	next()
 }
 const patchOneTask = (req, res, next) => {
-	const id = req.params.id
-	const body = req.body
-	const task = parsedData[id]
-	task.name = body.name
-	task.done = body.done
-	task.updatedAt = new Date()
+	try {
+		validationResult(req).throw()
+		const id = req.params.id
+		const body = req.body
+		const task = parsedData[id]
+		task.name = body.name.trim()
+		task.done = body.done
+		task.updatedAt = new Date()
 
-	const stringData = JSON.stringify(parsedData)
-	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+		const stringData = JSON.stringify(parsedData)
+		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
 
-	res.json(parsedData)
+		res.json(parsedData)
+	} catch (error) {
+		console.log('PATCH ERROR', error);
+		res.json(error)
+	}
 	next()
 }
 const deleteOneTaks = (req, res, next) => {
