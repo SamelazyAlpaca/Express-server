@@ -1,21 +1,11 @@
-// import data from '../data/data.json' assert {type: 'json'};
 import dotenv from 'dotenv'
 dotenv.config()
 import { v4 as uuidv4 } from 'uuid'
 import fs from 'fs'
 import path from 'path'
 const __dirname = path.resolve()
-import { body, validationResult } from 'express-validator'
+import { validationResult } from 'express-validator'
 
-// const read = () => {
-// 	return JSON.parse(
-// 		fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
-// 	)
-// }
-// const write = (task) => {
-// 	fs.writeFileSync(`${__dirname}/data/data.json`,
-// 		JSON.stringify(task))
-// }
 const rawData = fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
 const parsedData = JSON.parse(rawData)
 const getAllTasks = (req, res, next) => {
@@ -68,9 +58,19 @@ const getOneTask = (req, res, next) => {
 	next()
 }
 const postOneTask = (req, res, next) => {
-
 	try {
-		validationResult(req).throw()
+
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() });
+		}
+		console.log('PARSEDDATA', parsedData);
+		if (parsedData.find(task => task.name === req.body.name)) {
+			console.log('asdasdasdasdadas');
+			return res.status(400).json({ status: 400, message: 'aaaaaaaaaaaaaaaaaaa' })
+
+		}
+
 		const task = {
 			uuid: uuidv4(),
 			name: req.body.name.trim(),
@@ -79,7 +79,7 @@ const postOneTask = (req, res, next) => {
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		}
-		console.log(req.body);
+		console.log('asdasdas', req.body);
 		parsedData.push(task)
 
 		const stringData = JSON.stringify(parsedData)
@@ -94,8 +94,14 @@ const postOneTask = (req, res, next) => {
 	next()
 }
 const patchOneTask = (req, res, next) => {
+
 	try {
-		validationResult(req).throw()
+		const errors = validationResult(req);
+
+		if (!errors.isEmpty()) {
+			return res.status(400).json({ errors: errors.array() })
+		}
+
 		const id = req.params.id
 		const body = req.body
 		const task = parsedData[id]
@@ -108,8 +114,8 @@ const patchOneTask = (req, res, next) => {
 
 		res.json(parsedData)
 	} catch (error) {
-		console.log('PATCH ERROR', error);
-		res.json(error)
+		console.log('PATCH ERROR', error.array());
+		res.json(error.array())
 	}
 	next()
 }

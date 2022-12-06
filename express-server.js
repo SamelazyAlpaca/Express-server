@@ -1,4 +1,3 @@
-import path from 'path'
 import dotenv from 'dotenv'
 dotenv.config()
 import express from 'express'
@@ -6,6 +5,7 @@ import userRouter from './routes/userRouter.js'
 
 const app = express()
 app.use(express.json())
+// app.use()
 
 app.get('/', (req, res) => {
 	res.send('Hi! Go to /user/tasks to get all tasks')

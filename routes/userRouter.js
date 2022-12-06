@@ -1,5 +1,5 @@
 import express from "express";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import userController from '../controllers/userController.js'
 const userRouter = express.Router()
 
@@ -13,15 +13,39 @@ userRouter.get('/tasks/:id', userController.getOneTask)
 
 // Post userRouter
 userRouter.post('/tasks/post',
-	body('name').trim().isLength({ min: 5, max: 255 }).withMessage('The name is too long or short').notEmpty(),
-	body('done').trim().notEmpty().isBoolean(),
+	body('name')
+		.trim()
+		.notEmpty()
+		.isLength({ min: 5, max: 255 })
+		.withMessage('The name is too long or short')
+		.escape()
+	,
+	body('done')
+		.trim()
+		.notEmpty()
+		.isBoolean()
+		.withMessage('It should be Boolean value(true or false)')
+		.escape(),
 	userController.postOneTask)
 
 // Patch userRouter
 userRouter.patch('/tasks/patch/:id',
-	body('name').isLength({ min: 5, max: 255 }).withMessage('The name is too long or short').notEmpty(),
-	body('done').notEmpty().isBoolean(),
-	userController.patchOneTask)
+	body('name')
+		.exists()
+		.trim()
+		.isLength({ min: 5, max: 255 })
+		.withMessage('The name is too long or short')
+		.notEmpty()
+		.escape(),
+	body('done')
+		.exists()
+		.trim()
+		.notEmpty()
+		.isBoolean()
+		.withMessage('It should be Boolean value(true or false)')
+		.escape(),
+	userController.patchOneTask,
+)
 
 // Delete userRouter
 userRouter.delete('/tasks/delete/:id', userController.deleteOneTaks)
