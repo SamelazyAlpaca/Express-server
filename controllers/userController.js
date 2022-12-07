@@ -85,19 +85,17 @@ const postOneTask = (req, res, next) => {
 			uuid: uuidv4(),
 			name: req.body.name.trim(),
 			done: JSON.parse(req.body.done),
-			userId: `${process.env.BASE_userId}`,
+			userId: `${process.env.BASE_USER_ID}`,
 			createdAt: new Date(),
 			updatedAt: new Date(),
 		}
-		console.log('asdasdas', req.body);
 		parsedData.push(task)
 
-		const stringData = JSON.stringify(parsedData)
+		const stringData = JSON.stringify(parsedData, null, 4);
 		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
 
 		res.status(200).json({ status: 200, message: 'Ok' })
 	} catch (error) {
-		// console.log('POST ERROR', error);
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
 
@@ -118,7 +116,6 @@ const patchOneTask = (req, res, next) => {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
 		if (task.name === body.name && task.done === JSON.parse(body.done)) {
-			console.log('TASK already exists');
 			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
 		}
 
