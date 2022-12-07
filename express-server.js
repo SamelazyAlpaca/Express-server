@@ -1,7 +1,9 @@
 import dotenv from 'dotenv'
 dotenv.config()
 import express from 'express'
-import userRouter from './routes/userRouter.js'
+import path from 'path'
+const __dirname = path.resolve()
+import recursiveReadSync from 'recursive-readdir-sync'
 
 const app = express()
 app.use(express.json())
@@ -9,7 +11,12 @@ app.use(express.json())
 app.get('/', (req, res) => {
 	res.send('Hi! Go to /user/tasks to get all tasks')
 })
-app.use("/user", userRouter)
+
+recursiveReadSync(`${__dirname}/routes`)
+	.forEach(async (file) => {
+		const module = await import(file)
+		app.use('/user', module.default)
+	});
 
 app.listen(process.env.BASE_PORT, () => {
 	console.log(`Server llistening on Port ${process.env.BASE_PORT}`);
