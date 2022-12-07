@@ -10,51 +10,64 @@ const rawData = fs.readFileSync(`${__dirname}/data/data.json`, "utf8")
 const parsedData = JSON.parse(rawData)
 const getAllTasks = (req, res, next) => {
 
-	let sortedTasks = parsedData
+	try {
+		let sortedTasks = parsedData
 
-	switch (req.query.order) {
-		case 'asc':
-			sortedTasks.sort((a, b) => (a.dateSort = +new Date(a.createdAt) - (b.dateSort = +new Date(b.createdAt))))
-			break;
-		case 'desc':
-			sortedTasks.sort((a, b) => (b.dateSort = +new Date(b.createdAt) - (a.dateSort = +new Date(a.createdAt))))
-			break;
-		default:
-			sortedTasks
-			break;
+		switch (req.query.order) {
+			case 'asc':
+				sortedTasks.sort((a, b) => (a.dateSort = +new Date(a.createdAt) - (b.dateSort = +new Date(b.createdAt))))
+				break;
+			case 'desc':
+				sortedTasks.sort((a, b) => (b.dateSort = +new Date(b.createdAt) - (a.dateSort = +new Date(a.createdAt))))
+				break;
+			default:
+				sortedTasks
+				break;
+		}
+
+		let filteredTasks = [...sortedTasks]
+
+		switch (req.query.filterBy) {
+			case 'done':
+				filteredTasks = sortedTasks.filter((item) => item.done === true)
+				break;
+			case 'undone':
+				filteredTasks = sortedTasks.filter((item) => item.done === false)
+				break;
+			default:
+				filteredTasks
+				break;
+		}
+
+		const currentPage = req.query.page
+		const todosPerPage = req.query.pp
+		const lastTodoIndex = currentPage * todosPerPage
+		const firstTodoIndex = lastTodoIndex - todosPerPage;
+		const currentTodoPage = filteredTasks.slice(firstTodoIndex, lastTodoIndex)
+
+		const countAndTasks = {
+			count: filteredTasks.length,
+			tasks: currentTodoPage
+		}
+
+		res.status(200).json(countAndTasks)
+	} catch (error) {
+		res.status(500).json({ status: 500, message: 'Something went wrong on the server' })
 	}
-
-	let filteredTasks = [...sortedTasks]
-
-	switch (req.query.filterBy) {
-		case 'done':
-			filteredTasks = sortedTasks.filter((item) => item.done === true)
-			break;
-		case 'undone':
-			filteredTasks = sortedTasks.filter((item) => item.done === false)
-			break;
-		default:
-			filteredTasks
-			break;
-	}
-
-	const currentPage = req.query.page
-	const todosPerPage = req.query.pp
-	const lastTodoIndex = currentPage * todosPerPage
-	const firstTodoIndex = lastTodoIndex - todosPerPage;
-	const currentTodoPage = filteredTasks.slice(firstTodoIndex, lastTodoIndex)
-
-	const countAndTasks = {
-		count: filteredTasks.length,
-		tasks: currentTodoPage
-	}
-
-	res.json(countAndTasks)
 	next()
 }
 const getOneTask = (req, res, next) => {
-	const id = req.params.id
-	res.json(parsedData[id])
+	try {
+		const id = req.params.id
+
+		if (parsedData[id] === undefined || null) {
+			return res.status(404).json({ status: 404, message: 'Task not found' })
+		}
+
+		res.status(200).json(parsedData[id])
+	} catch (error) {
+		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
+	}
 	next()
 }
 const postOneTask = (req, res, next) => {
@@ -64,17 +77,14 @@ const postOneTask = (req, res, next) => {
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() });
 		}
-		console.log('PARSEDDATA', parsedData);
 		if (parsedData.find(task => task.name === req.body.name)) {
-			console.log('asdasdasdasdadas');
-			return res.status(400).json({ status: 400, message: 'aaaaaaaaaaaaaaaaaaa' })
-
+			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
 		}
 
 		const task = {
 			uuid: uuidv4(),
 			name: req.body.name.trim(),
-			done: req.body.done,
+			done: JSON.parse(req.body.done),
 			userId: `${process.env.BASE_userId}`,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -85,10 +95,10 @@ const postOneTask = (req, res, next) => {
 		const stringData = JSON.stringify(parsedData)
 		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
 
-		res.json(parsedData)
+		res.status(200).json({ status: 200, message: 'Ok' })
 	} catch (error) {
-		console.log('POST ERROR', error);
-		res.json(error)
+		// console.log('POST ERROR', error);
+		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
 
 	next()
@@ -97,36 +107,51 @@ const patchOneTask = (req, res, next) => {
 
 	try {
 		const errors = validationResult(req);
+		const id = req.params.id
+		const body = req.body
+		const task = parsedData[id]
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() })
 		}
+		if (task === undefined || null) {
+			return res.status(404).json({ status: 404, message: 'Task not found' })
+		}
+		if (task.name === body.name && task.done === JSON.parse(body.done)) {
+			console.log('TASK already exists');
+			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
+		}
 
-		const id = req.params.id
-		const body = req.body
-		const task = parsedData[id]
 		task.name = body.name.trim()
-		task.done = body.done
+		task.done = JSON.parse(body.done)
 		task.updatedAt = new Date()
 
 		const stringData = JSON.stringify(parsedData)
 		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
 
-		res.json(parsedData)
+		res.status(200).json({ status: 200, message: 'ok' })
 	} catch (error) {
-		console.log('PATCH ERROR', error.array());
-		res.json(error.array())
+		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
 	next()
 }
 const deleteOneTaks = (req, res, next) => {
-	const id = req.params.id
-	const task = parsedData.splice(id, 1)
+	try {
+		const id = req.params.id
 
-	const stringData = JSON.stringify(parsedData)
-	fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+		if (parsedData[id] === undefined || null) {
+			return res.status(404).json({ status: 404, message: 'Task not found' })
+		}
 
-	res.json(task)
+		const task = parsedData.splice(id, 1)
+
+		const stringData = JSON.stringify(parsedData)
+		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
+
+		res.status(200).json(task)
+	} catch (error) {
+		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
+	}
 	next()
 }
 
