@@ -5,7 +5,7 @@ const userRouter = express.Router()
 
 
 
-userRouter.post('/tasks/post',
+userRouter.post('/tasks',
 	body('name')
 		.trim()
 		.notEmpty()
@@ -14,6 +14,7 @@ userRouter.post('/tasks/post',
 		.escape()
 	,
 	body('done')
+		.optional()
 		.trim()
 		.notEmpty()
 		.isBoolean()

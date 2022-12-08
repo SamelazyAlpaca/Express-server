@@ -59,12 +59,13 @@ const getAllTasks = (req, res, next) => {
 const getOneTask = (req, res, next) => {
 	try {
 		const id = req.params.id
-
-		if (parsedData[id] === undefined || null) {
+		const oneTask = parsedData.find((item) => item.uuid === id)
+		if (oneTask === undefined || null) {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
 
-		res.status(200).json(parsedData[id])
+
+		res.status(200).json(oneTask)
 	} catch (error) {
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
@@ -106,22 +107,28 @@ const patchOneTask = (req, res, next) => {
 	try {
 		const errors = validationResult(req);
 		const id = req.params.id
+		console.log(id);
 		const body = req.body
-		const task = parsedData[id]
+		console.log(body);
+		const oneTask = parsedData.find((item) => item.uuid === id)
+		console.log(oneTask);
+
 
 		if (!errors.isEmpty()) {
 			return res.status(400).json({ errors: errors.array() })
 		}
-		if (task === undefined || null) {
+		if (oneTask === undefined || null) {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
-		if (task.name === body.name && task.done === JSON.parse(body.done)) {
+		if (oneTask.name === body.name && oneTask.done === JSON.parse(body.done)) {
 			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
 		}
 
-		task.name = body.name.trim()
-		task.done = JSON.parse(body.done)
-		task.updatedAt = new Date()
+		oneTask.name = body.name.trim()
+		console.log(oneTask.name);
+		oneTask.done = JSON.parse(body.done)
+		console.log(oneTask.done);
+		oneTask.updatedAt = new Date()
 
 		const stringData = JSON.stringify(parsedData)
 		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
@@ -135,18 +142,18 @@ const patchOneTask = (req, res, next) => {
 const deleteOneTaks = (req, res, next) => {
 	try {
 		const id = req.params.id
-
-		if (parsedData[id] === undefined || null) {
+		const oneTask = parsedData.find((item) => item.uuid === id)
+		if (oneTask === undefined || null) {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
-
-		const task = parsedData.splice(id, 1)
+		const deletedTask = parsedData.splice(parsedData.indexOf(oneTask), 1)
 
 		const stringData = JSON.stringify(parsedData)
 		fs.writeFileSync(`${__dirname}/data/data.json`, stringData)
 
-		res.status(200).json(task)
+		res.status(200).json(deletedTask)
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
 	next()

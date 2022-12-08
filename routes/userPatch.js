@@ -4,7 +4,7 @@ import userController from '../controllers/userController.js'
 const userRouter = express.Router()
 
 
-userRouter.patch('/tasks/patch/:id',
+userRouter.patch('/tasks/:id',
 	body('name')
 		.exists()
 		.trim()
