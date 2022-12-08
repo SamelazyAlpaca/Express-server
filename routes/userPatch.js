@@ -12,13 +12,6 @@ userRouter.patch('/tasks/:id',
 		.withMessage('The name is too long or short')
 		.notEmpty()
 		.escape(),
-	body('done')
-		.exists()
-		.trim()
-		.notEmpty()
-		.isBoolean()
-		.withMessage('It should be Boolean value(true or false)')
-		.escape(),
 	userController.patchOneTask,
 )
 

@@ -64,7 +64,6 @@ const getOneTask = (req, res, next) => {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
 
-
 		res.status(200).json(oneTask)
 	} catch (error) {
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
@@ -76,7 +75,7 @@ const postOneTask = (req, res, next) => {
 
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() });
+			return res.status(400).json({ status: 400, message: 'The name must be between 3 and 255 characters' });
 		}
 		if (parsedData.find(task => task.name === req.body.name)) {
 			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
@@ -85,7 +84,7 @@ const postOneTask = (req, res, next) => {
 		const task = {
 			uuid: uuidv4(),
 			name: req.body.name.trim(),
-			done: JSON.parse(req.body.done),
+			done: false,
 			userId: `${process.env.BASE_USER_ID}`,
 			createdAt: new Date(),
 			updatedAt: new Date(),
@@ -107,27 +106,21 @@ const patchOneTask = (req, res, next) => {
 	try {
 		const errors = validationResult(req);
 		const id = req.params.id
-		console.log(id);
 		const body = req.body
-		console.log(body);
 		const oneTask = parsedData.find((item) => item.uuid === id)
-		console.log(oneTask);
-
 
 		if (!errors.isEmpty()) {
-			return res.status(400).json({ errors: errors.array() })
+			return res.status(400).json({ status: 400, message: 'The name must be between 3 and 255 characters' })
 		}
 		if (oneTask === undefined || null) {
 			return res.status(404).json({ status: 404, message: 'Task not found' })
 		}
 		if (oneTask.name === body.name && oneTask.done === JSON.parse(body.done)) {
-			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
+			return res.status(422).json({ status: 422, message: 'Nothing to change' })
 		}
 
 		oneTask.name = body.name.trim()
-		console.log(oneTask.name);
 		oneTask.done = JSON.parse(body.done)
-		console.log(oneTask.done);
 		oneTask.updatedAt = new Date()
 
 		const stringData = JSON.stringify(parsedData)
@@ -153,7 +146,6 @@ const deleteOneTaks = (req, res, next) => {
 
 		res.status(200).json(deletedTask)
 	} catch (error) {
-		console.log(error);
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
 	next()

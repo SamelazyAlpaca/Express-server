@@ -9,16 +9,8 @@ userRouter.post('/tasks',
 	body('name')
 		.trim()
 		.notEmpty()
-		.isLength({ min: 5, max: 255 })
+		.isLength({ min: 3, max: 255 })
 		.withMessage('The name is too long or short')
-		.escape()
-	,
-	body('done')
-		.optional()
-		.trim()
-		.notEmpty()
-		.isBoolean()
-		.withMessage('It should be Boolean value(true or false)')
 		.escape(),
 	userController.postOneTask)
 
