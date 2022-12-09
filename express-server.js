@@ -10,10 +10,6 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.get('/', (req, res) => {
-	res.send('Hi! Go to /user/tasks to get all tasks')
-})
-
 recursiveReadSync(`${__dirname}/routes`)
 	.forEach(async (file) => {
 		const module = await import(file)

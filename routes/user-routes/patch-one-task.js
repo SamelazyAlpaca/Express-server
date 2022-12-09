@@ -1,6 +1,6 @@
 import express from "express";
 import { body } from "express-validator";
-import userController from '../controllers/userController.js'
+import { patchOneTask } from "../../controllers/userControllers/patch-one-controller.js";
 const userRouter = express.Router()
 
 
@@ -12,7 +12,7 @@ userRouter.patch('/tasks/:id',
 		.withMessage('The name is too long or short')
 		.notEmpty()
 		.escape(),
-	userController.patchOneTask,
+	patchOneTask,
 )
 
 export default userRouter

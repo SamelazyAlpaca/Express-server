@@ -1,6 +1,6 @@
 import express from "express";
 import { body } from "express-validator";
-import userController from '../controllers/userController.js'
+import { postOneTask } from "../../controllers/userControllers/post-one-contoller.js";
 const userRouter = express.Router()
 
 
@@ -12,6 +12,6 @@ userRouter.post('/tasks',
 		.isLength({ min: 3, max: 255 })
 		.withMessage('The name is too long or short')
 		.escape(),
-	userController.postOneTask)
+	postOneTask)
 
 export default userRouter
