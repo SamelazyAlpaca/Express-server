@@ -6,7 +6,6 @@ export const getAllTasks = async (req, res, next) => {
 
 	try {
 		let sortedTasks = await read()
-		// console.log(sortedTasks);
 
 		switch (req.query.order) {
 			case 'asc':

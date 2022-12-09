@@ -15,4 +15,5 @@ export const getOneTask = async (req, res, next) => {
 	} catch (error) {
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}
+	next()
 }
