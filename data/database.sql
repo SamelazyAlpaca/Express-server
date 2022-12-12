@@ -1,0 +1,17 @@
+CREATE TABLE person(
+	id INTEGER NOT NULL AUTO_INCREMENT,
+	userId VARCHAR(255),
+	login VARCHAR(255),
+	mail VARCHAR(255)
+);
+
+CREATE TABLE todos(
+	id INTEGER NOT NULL AUTOINCREMENT,
+	uuid VARCHAR(255),
+	name VARCHAR(255),
+	done boolean DEFAULT(false),
+	userId VARCHAR(255),
+	createdAt TIMESTAMP,
+	updatedAt TIMESTAMP,
+	FOREIGN KEY (userId) REFERENCES person(userId)
+);

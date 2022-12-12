@@ -3,6 +3,7 @@ dotenv.config()
 import { v4 as uuidv4 } from 'uuid'
 import { validationResult } from 'express-validator'
 import { read, write } from '../../helpers/read-write-file.js'
+import Task from '../../models/Task.js'
 
 export const postOneTask = async (req, res, next) => {
 	try {
@@ -15,19 +16,23 @@ export const postOneTask = async (req, res, next) => {
 			return res.status(422).json({ status: 422, message: 'The same task already exists!' })
 		}
 
-		const task = {
+		Task.create({
 			uuid: uuidv4(),
 			name: req.body.name.trim(),
 			done: false,
 			userId: `${process.env.BASE_USER_ID}`,
 			createdAt: new Date(),
 			updatedAt: new Date(),
-		}
-		parsedData.push(task)
+		}).catch((error) => {
+			console.log(error);
+		})
+		console.log(Task);
+
+		parsedData.push(Task)
 
 		write(parsedData)
-
-		res.status(200).json({ status: 200, message: 'Ok' })
+		// { status: 200, message: 'Ok' }
+		res.status(200).json(Task)
 	} catch (error) {
 		res.status(500).json({ status: 500, message: 'Cannot get response from server' })
 	}

@@ -22,7 +22,11 @@
 		"httperrors": "^2.3.0",
 		"nodemon": "^2.0.20",
 		"path": "^0.12.7",
+		"pg": "^8.8.0",
+		"pg-hstore": "^2.3.4",
 		"recursive-readdir-sync": "^1.0.6",
+		"sequelize": "^6.27.0",
+		"sequelize-cli": "^6.5.2",
 		"uuid": "^9.0.0"
 	}
 }
