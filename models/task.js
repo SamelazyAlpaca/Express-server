@@ -1,7 +1,5 @@
 import { Model, DataTypes } from "sequelize"
 import sequelize from "./index.js";
-// const { sequelize } = require('./index.js')
-// const { Model, DataTypes } = require(sequelize)
 
 class Tasks extends Model { }
 

@@ -3,8 +3,6 @@ import { body } from "express-validator";
 import { postOneTask } from "../../controllers/userControllers/post.one.task.js";
 const userRouter = express.Router()
 
-
-
 userRouter.post('/tasks',
 	body('name')
 		.trim()

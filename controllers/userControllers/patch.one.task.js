@@ -1,5 +1,3 @@
-import dotenv from 'dotenv'
-dotenv.config()
 import { validationResult } from 'express-validator'
 import Tasks from '../../models/task.js'
 
