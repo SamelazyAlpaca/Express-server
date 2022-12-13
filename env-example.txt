@@ -1,2 +1,9 @@
-BASE_PORT=number
-BASE_userId=string
+
+DATABASE_USERNAME = "string"
+DATABASE_PASSWORD = "string"
+DATABASE_DATABASE = "string" 
+DATABASE_HOST = "number"
+DATABASE_DIALECT = "string"
+BASE_PORT= "number"
+BASE_USER_ID= "string"
+DATABASE_URL = "string"
