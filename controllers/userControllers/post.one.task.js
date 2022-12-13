@@ -8,14 +8,15 @@ export const postOneTask = async (req, res, next) => {
 			return res.status(400).json({ status: 400, message: 'The name must be between 3 and 255 characters' });
 		}
 
-		Task.create({
+		await Task.create({
 			name: req.body.name.trim(),
 		})
 
 		res.status(200).json({ status: 200, message: 'Ok' })
 	} catch (error) {
+		console.log(error);
 		if (error.name === 'SequelizeUniqueConstraintError') {
-			return res.status(422).json({
+			return res.status(400).json({
 				message: 'The same task already exists',
 			})
 		}
