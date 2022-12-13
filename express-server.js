@@ -7,18 +7,7 @@ const __dirname = path.resolve()
 import recursiveReadSync from 'recursive-readdir-sync'
 const app = express()
 
-
-
-// try {
-// 	await sequelize.authenticate();
-// 	console.log('Connection successfully');
-// } catch (error) {
-// 	console.log('Connection error', error);
-// }
-
 try {
-
-	// await db.sequelize.authenticate()
 
 	app.use(cors())
 	app.use(express.json())
@@ -29,8 +18,6 @@ try {
 			app.use('/user', module.default)
 		});
 
-	// Task.sequelize.sync().then((req) => {
-	// })
 	app.listen(process.env.BASE_PORT, () => {
 		console.log(`Server llistening on Port ${process.env.BASE_PORT}`);
 	})

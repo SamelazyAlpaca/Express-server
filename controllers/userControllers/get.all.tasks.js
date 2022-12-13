@@ -21,12 +21,11 @@ export const getAllTasks = async (req, res, next) => {
 			limit: perPage,
 		})
 
-		console.log(rows);
-
 		res.status(200).json({ count: count, tasks: rows })
 	} catch (error) {
-		console.log(error);
-		res.status(500).json({ status: 500, message: 'Something went wrong on the server' })
+		return res.status(422).json({
+			message: err.errors?.map((e) => e.message) || 'Cannot get Task',
+		})
 	}
 	next()
 }
