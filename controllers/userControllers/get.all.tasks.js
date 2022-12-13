@@ -1,51 +1,31 @@
 import dotenv from 'dotenv'
 dotenv.config()
-import { read } from '../../helpers/read-write-file.js'
-
+import Tasks from '../../models/task.js'
 export const getAllTasks = async (req, res, next) => {
 
+	const { filterBy, order, pp, page } = req.query
+	const perPage = pp || 5
+	const currentPage = page || 1
+
+	const sorting = order === 'desc' ? 'desc' : 'asc'
+	const filter = !filterBy ? null : filterBy === 'done'
+
 	try {
-		let sortedTasks = await read()
 
-		switch (req.query.order) {
-			case 'asc':
-				sortedTasks.sort((a, b) => (a.dateSort = +new Date(a.createdAt) - (b.dateSort = +new Date(b.createdAt))))
-				break;
-			case 'desc':
-				sortedTasks.sort((a, b) => (b.dateSort = +new Date(b.createdAt) - (a.dateSort = +new Date(a.createdAt))))
-				break;
-			default:
-				sortedTasks
-				break;
-		}
+		const { count, rows } = await Tasks.findAndCountAll({
+			where: {
+				done: typeof filter === 'boolean' ? filter : [true, false],
+			},
+			order: [['createdAt', sorting]],
+			offset: (currentPage - 1) * perPage,
+			limit: perPage,
+		})
 
-		let filteredTasks = [...sortedTasks]
+		console.log(rows);
 
-		switch (req.query.filterBy) {
-			case 'done':
-				filteredTasks = sortedTasks.filter((item) => item.done === true)
-				break;
-			case 'undone':
-				filteredTasks = sortedTasks.filter((item) => item.done === false)
-				break;
-			default:
-				filteredTasks
-				break;
-		}
-
-		const currentPage = req.query.page
-		const todosPerPage = req.query.pp
-		const lastTodoIndex = currentPage * todosPerPage
-		const firstTodoIndex = lastTodoIndex - todosPerPage;
-		const currentTodoPage = filteredTasks.slice(firstTodoIndex, lastTodoIndex)
-
-		const countAndTasks = {
-			count: filteredTasks.length,
-			tasks: currentTodoPage
-		}
-
-		res.status(200).json(countAndTasks)
+		res.status(200).json({ count: count, tasks: rows })
 	} catch (error) {
+		console.log(error);
 		res.status(500).json({ status: 500, message: 'Something went wrong on the server' })
 	}
 	next()

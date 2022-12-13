@@ -1,13 +1,12 @@
-import { DataTypes } from "sequelize"
-import { sequelize } from "../helpers/sequelize-instance.js"
+import { Model, DataTypes } from "sequelize"
+import sequelize from "./index.js";
+// const { sequelize } = require('./index.js')
+// const { Model, DataTypes } = require(sequelize)
 
-const Task = sequelize.define("todos", {
+class Tasks extends Model { }
+
+Tasks.init({
 	id: {
-		type: DataTypes.INTEGER,
-		primaryKey: true,
-		autoIncrement: true,
-	},
-	uuid: {
 		type: DataTypes.UUID,
 		defaultValue: DataTypes.UUIDV4,
 		allowNull: false,
@@ -17,13 +16,11 @@ const Task = sequelize.define("todos", {
 	name: {
 		type: DataTypes.STRING,
 		allowNull: false,
+		unique: true,
 	},
 	done: {
 		type: DataTypes.BOOLEAN,
-		allowNull: false,
-	},
-	userId: {
-		type: DataTypes.UUID,
+		defaultValue: false,
 		allowNull: false,
 	},
 	createdAt: {
@@ -34,6 +31,11 @@ const Task = sequelize.define("todos", {
 		type: DataTypes.DATE,
 		allowNull: false,
 	}
-})
+}, {
+	sequelize,
+	modelName: 'task',
+	timestamps: true,
+});
 
-export default Task
+// module.exports = Tasks
+export default Tasks
